@@ -78,6 +78,7 @@ def _web_search(query: str) -> str:
 task_agent/
 ├── agent.py        # LangGraph graph, nodes, routing logic
 ├── tools.py        # Tool definitions + implementations
+├── rag.py          # RAG module 
 ├── main.py         # CLI entrypoint
 ├── requirements.txt
 └── README.md

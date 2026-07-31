@@ -51,7 +51,7 @@ class AgentState(TypedDict):
 
 def planner(state: AgentState) -> dict:
     """Break the goal into 3-5 concrete sub-tasks."""
-    print("\n📋  PLANNER — decomposing goal…")
+    print("\nPLANNER — decomposing goal…")
 
     tool_names = ", ".join(t["name"] for t in TOOLS)
     rag_context = rag.retrieve(state["goal"], top_k=2)
@@ -120,7 +120,7 @@ def executor(state: AgentState) -> dict:
     idx = state["current_task_index"]
     task = state["tasks"][idx]
     is_retry = state.get("retry_count", 0) > 0
-    prefix = "🔁  RETRY" if is_retry else "⚙️   EXECUTOR"
+    prefix = "RETRY" if is_retry else "  EXECUTOR"
     print(f"\n{prefix} — task {task['id']}: {task['description']}")
 
     # RAG: retrieve knowledge relevant to this specific task
@@ -146,13 +146,13 @@ def executor(state: AgentState) -> dict:
                 tool_input = tool_input.strip()
                 print(f"   🔧 calling tool '{tool_name}' with: {tool_input!r}")
                 tool_result = run_tool(tool_name, tool_input)
-                print(f"   ✅ tool result: {tool_result}")
+                print(f"   tool result: {tool_result}")
                 history.append(HumanMessage(content=f"Tool result: {tool_result}"))
                 continue
 
         result_line = next((l for l in text.splitlines() if l.startswith("RESULT:")), None)
         result = result_line[len("RESULT:"):].strip() if result_line else text
-        print(f"   📝 result: {result}")
+        print(f"   result: {result}")
 
         updated_tasks = [
             {**t, "done": True} if t["id"] == task["id"] else t
@@ -234,7 +234,7 @@ def summarizer(state: AgentState) -> dict:
 
     response: AIMessage = llm.invoke([system, user])
     report = response.content.strip()
-    print(f"\n{'='*60}\n📄  FINAL REPORT\n{'='*60}\n{report}\n{'='*60}\n")
+    print(f"\n{'='*60}\n FINAL REPORT\n{'='*60}\n{report}\n{'='*60}\n")
 
     return {"final_report": report, "messages": [system, user, response]}
 
@@ -259,7 +259,7 @@ def after_reflector(state: AgentState) -> str:
     # Check if result was a retry score signal
     if score <= 2:
         # We'll re-run the last task: undo the index increment inside executor
-        print(f"   ⚠️  Quality too low (score={score}), scheduling retry…")
+        print(f"   Quality too low (score={score}), scheduling retry…")
         # Decrement index so executor re-runs the same task
         return "retry"
 
@@ -273,7 +273,7 @@ def after_reflector(state: AgentState) -> str:
 
 def _undo_index(state: AgentState) -> dict:
     """Helper node: rolls back current_task_index so executor re-runs the task."""
-    print("   ↩️   Rolling back task index for retry…")
+    print("    Rolling back task index for retry…")
     # Also remove the bad result from task_results and reset task.done
     bad_idx = state["current_task_index"] - 1
     updated_tasks = [
